@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Vagrant</title>
+
+    <meta name="description" content="Vagrant introduction course">
+    <meta name="author" content="Loïc Delestra">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" ></meta>
+    <!-- <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /> -->
+
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui"> -->
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/beige.css" id="theme">
+
+    <link rel="stylesheet" href="css/custom.css">
+
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+          <section data-markdown>
+            <script type="text/template">
+              # Vagrant
+              Loïc Delestra
+              <br>
+              <br>
+            </script>
+          </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+              # 1. Concept
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## What is it?
+              Vagrant is computer software that creates and configures virtual development environments.
+
+              Its a higher-level wrapper around virtualization software such as VirtualBox, VMware, KVM and Linux Containers (LXC) and around configuration management software such as Ansible, Chef, Salt and Puppet
+
+              *wikipedia*
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Benefits as a developer
+              * isolate dependencies and their configuration within a single disposable, consistent environment.
+              * Create and share a single `Vagrantfile` for your team.
+              * You just need to `vagrant up` and everything is installed and configured for you to work
+              * Say goodbye to "works on my machine" bugs.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Benefits as an admin
+              * disposable environment and consistent workflow for developing and testing infrastructure management scripts.
+              * quickly test things like shell scripts, Chef cookbooks, Puppet modules, and more using local virtualization such as VirtualBox or VMware.
+              * with the same configuration, you can test these scripts on remote clouds such as AWS or RackSpace with the same workflow.
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+              # 2. Getting Started
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Installation
+              For your practical work Vagrant is already installed.
+
+              We use VirtualBox as Hypervisor.
+            </script>
+          </section>
+          
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Project setup
+              Creation of the Vagrantfile. Two purpose:
+              1. Mark the root directory of your project. A lot of the configuration of Vagrant is relative to this root directory.
+              2. Describe the kind of machine and resources you need to run your project, as well as what software to install and how you want to access it.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              Easy way to create a Vagrantfile: `vagrant init`
+              ```bash
+              $ mkdir vagrant_getting_started
+              $ cd vagrant_getting_started
+              $ vagrant init
+              ```
+              exemple with machine specification:
+
+              ```
+              mkdir /tmp/projectDir;cd /tmp/projectDir;vagrant init hashicorp/precise32
+              ```
+              <br>
+              /\*Take a look\*/
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Boxes
+              * Vagrant uses a base image to quickly clone a virtual machine.
+              * You need to add boxes localy before using it.
+              * Added boxes can be re-used by multiple projects.
+              * Each project uses a box as an initial image to clone from, and never modifies the actual base image.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ### Adding a boxes
+              Boxes are added to Vagrant with `vagrant box add`
+              <br>
+              exemple:
+              ```bash
+              $ vagrant box add hashicorp/precise32
+              ```
+              <!-- Boxes are hosted in a --> 
+              * By default boxes are downloaded from HashiCorp\'s Atlas calatogue:<br>https://atlas.hashicorp.com/boxes/search
+              * You can also add boxes from a local file, custom URL, etc.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ### Using a box
+              we need to configure our project to use added box as a base.
+
+              In the **`Vagrantfile`**
+              ```
+              Vagrant.configure("2") do |config|
+                config.vm.box = "hashicorp/precise32"
+              end
+              ```
+              If the box wasn't added before, Vagrant will automatically download and add the box when it is run
+
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## UP and SSH
+              When your vagrant box is added and your Vagrantfile configured, you want to boot your Vagrant environment.
+              ```
+              $ vagrant up
+              ```
+              /\*Lets try, and check into the provider\*/
+              <br>
+              Now you can interact with your Vagrant machine using SSH.
+              ```
+              $ vagrant ssh
+              ```
+              Like in other ssh session use `exit` to go back on your host
+              <br>
+              When your 'work' is done run `vagrant destroy` to remove all traces of the VM. 
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Synced folders
+              ### Default
+              By default, Vagrant shares your project directory to /vagrant
+              <br>
+              <br>
+              /\*Lets try\*/
+              <br>
+              <br>
+              So you can use your host editor to make modification into guest files.
+              <br>
+              You can create new synced folder
+              ```
+              config.vm.synced_folder "src/", "/srv/website"
+              #First is relative from host, second is absolute path into the gest
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Provisionning
+              So you got a VM... Lets doing something with it
+              <br>
+              Like... installing a software
+              * You can do it by ssh but every person who used your Vagrantfile have to do the same thing. It's against Vagrant spirit.
+              * instead, you can use automated provisioning and install software you need when you boot your VM.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ### installing apache with shell script 1/2
+              Create a shell script `bootstrap.sh` above your Vagrantfile
+              ```
+              #!/usr/bin/env bash
+
+              apt-get update
+              apt-get install -y apache2
+              if ! [ -L /var/www ]; then
+                rm -rf /var/www
+                ln -fs /vagrant /var/www
+              fi
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ### installing apache with shell script 2/2
+              we configure Vagrant to run this shell script when setting up our machine by editing the Vagrantfile, which should now look like this:
+              ```
+              Vagrant.configure("2") do |config|
+                config.vm.box = "hashicorp/precise32"
+                config.vm.provision :shell, path: "bootstrap.sh"
+              end
+              ```
+              Then **`vagrant up`** or **`vagrant reload --provision`**
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ##Networking
+              We have a web server running but we cant access to web pages hosted.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ### Port forwarding
+              * Specify ports on the guest machine to share via a port on the host machine.
+              * Allow to access from host to a gest machine port.
+              <br>
+              To do it ... edit Vagrantfile:
+              ```
+              Vagrant.configure("2") do |config|
+                config.vm.box = "hashicorp/precise32"
+                config.vm.provision :shell, path: "bootstrap.sh"
+                config.vm.network :forwarded_port, guest: 80, host: 4567
+              end
+              ```
+              `vagrant up` or `reload` then go to `http://127.0.0.1:4567` in your browser
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ##Teardown
+              Imagine you have to suspends your work, switching project, even go home 
+              <br>
+              * **suspend**: save the current running state and stop.<br>pro: super fast.<br>cons: eats lot of disk space
+              * **halt**: shut down the vm.<br>pro: cleanly shut down machine, perserve disk contents. cons: slow, use disk space
+              * **destroy**: remove all traces of the guest vm.<br>pro: nothing left.<br>cons: long boot, with reimport and reprovision
+
+            </script>
+          </section>
+
+        </section>
+
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+              ##Sources:
+              <br>
+              https://en.wikipedia.org/wiki/Vagrant_(software)
+              <br>
+              <br>
+              https://docs.vagrantup.com/v2/
+            </script>
+          </section>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        slideNumber: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+        { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+        { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: 'plugin/zoom-js/zoom.js', async: true },
+        { src: 'plugin/notes/notes.js', async: true }
+        ]
+        });
+
+      </script>
+
+  </body>
+</html>
